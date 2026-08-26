@@ -1,0 +1,90 @@
+// Sidisi self-mill test list — used as an importer fixture.
+Commander
+1 Sidisi, Brood Tyrant (C15) 46
+
+Deck
+1 Sol Ring (CMM) 396
+1x Arcane Signet [ELD:331]
+1 Cultivate
+1 Kodama's Reach
+1 Rampant Growth
+1 Farseek
+1 Nature's Lore
+1 Three Visits
+1 Skyshroud Claim
+1 Explosive Vegetation
+1 Fatal Push
+1 Go for the Throat
+1 Beast Within
+1 Putrefy
+1 Assassin's Trophy
+1 Cyclonic Rift
+1 Counterspell
+1 Swan Song
+1 Arcane Denial
+1 Rhystic Study
+1 Mystic Remora
+1 Sylvan Library
+1 Brainstorm
+1 Ponder
+1 Preordain
+1 Windfall
+1 Fact or Fiction
+1 Splendid Reclamation
+1 Life from the Loam
+1 Stinkweed Imp
+1 Golgari Grave-Troll
+1 Hedron Crab
+1 Ruin Crab
+1 Altar of Dementia
+1 Mesmeric Orb
+1 Undead Augur
+1 Eternal Witness
+1 Meren of Clan Nel Toth
+1 Deadly Rollick
+1 Toxic Deluge
+1 Damnation
+1 Living Death
+1 Reanimate
+1 Animate Dead
+1 Necromancy
+1 Victimize
+1 Sepulchral Primordial
+1 Sheoldred, Whispering One
+1 Grave Titan
+1 Craterhoof Behemoth
+1 Massacre Wurm
+1 Hornet Queen
+1 Acidic Slime
+1 Solemn Simulacrum
+1 Wood Elves
+1 Sakura-Tribe Elder
+1 Birds of Paradise
+1 Llanowar Elves
+1 Elvish Mystic
+1 Fyndhorn Elves
+1 Deathrite Shaman
+
+Lands
+1 Command Tower
+1 Opulent Palace
+1 Jungle Hollow
+1 Dismal Backwater
+1 Thornwood Falls
+1 Overgrown Tomb
+1 Watery Grave
+1 Breeding Pool
+1 Misty Rainforest
+1 Verdant Catacombs
+1 Polluted Delta
+1 Bojuka Bog
+1 Yavimaya, Cradle of Growth
+9 Forest
+9 Swamp
+7 Island
+
+Sideboard
+1 Pithing Needle
+
+Maybeboard
+1 Buried Alive
