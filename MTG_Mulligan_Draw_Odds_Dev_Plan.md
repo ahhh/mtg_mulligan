@@ -35,10 +35,11 @@ The core product principle is:
 This section is the live status board. Every other section of this document
 remains the design intent; this one records what actually exists.
 
-**Summary:** the probability engine, deck model, game state, tag resolution, and
-the plain-text importer are built and tested (79 passing tests under
-`node --test`). None of it is reachable from a browser yet — there is no
-`index.html`, no Scryfall client, and no persistence.
+**Summary:** the app is live and usable end to end. A pasted deck list is
+hydrated from Scryfall, dealt, mulliganed, bottomed, and drawn from, with exact
+odds updating after every known card. 118 tests pass under `node --test`, and
+the whole flow has been exercised against the live Scryfall API. Not yet built:
+the mana model, keep heuristics, Monte Carlo comparison, and saved combo groups.
 
 #### Build order status (section 34)
 
@@ -47,41 +48,46 @@ the plain-text importer are built and tested (79 passing tests under
 | 1 | `probability.js` + tests | Complete |
 | 2 | `deck-model.js` + `state.js` + tests | Complete |
 | 3 | Plain text importer | Complete |
-| 4 | Scryfall client + cache | Not started — next |
-| 5 | Minimal deck/hand UI | Not started |
-| 6 | Deal / draw / mulligan state | Engine complete, no UI |
-| 7 | Probability dashboard | Data layer complete, no UI |
-| 8 | Real-hand mode | Engine complete, no UI |
-| 9 | Card tooltip | Not started |
-| 10 | Tag editor | Resolution complete, no inference / persistence / UI |
-| 11 | Combo groups | Basic group target complete, no saved groups / UI |
-| 12 | Archidekt adapter | Not started — blocked on Phase 0 |
-| 13 | Moxfield adapter | Not started — blocked on Phase 0 |
-| 14 | Mana model | Not started |
+| 4 | Scryfall client + cache | Complete |
+| 5 | Minimal deck/hand UI | Complete |
+| 6 | Deal / draw / mulligan state | Complete |
+| 7 | Probability dashboard | Complete |
+| 8 | Real-hand mode | Complete |
+| 9 | Card tooltip | Complete |
+| 10 | Tag editor | Editor, precedence, and persistence complete; inference still basic-land only |
+| 11 | Combo groups | Group target complete; no saved-group UI |
+| 12 | Archidekt adapter | **Not viable from a static origin** — see Phase 0 below |
+| 13 | Moxfield adapter | **Not viable from a static origin** — see Phase 0 below |
+| 14 | Mana model | Not started — next |
 | 15 | Keep heuristics | Not started |
 | 16 | Monte Carlo mulligan comparison | Not started |
-| 17 | Polish / accessibility / CSP | Not started |
+| 17 | Polish / accessibility / CSP | CSP, focus, and reduced-motion done; audit outstanding |
 
 #### What exists on disk
 
 ```text
+index.html             the app shell: landing, deck, tags, and play screens
+css/app.css            one stylesheet, dark/light, no framework
+js/app.js              the single store, dispatch, and render
 js/probability.js      hypergeometric PMF, at-least-one, at-least-N, between,
-                       distribution, expected hits; log-combination arithmetic,
-                       input guards. Knows nothing about cards.
+                       distribution, expected hits. Knows nothing about cards.
 js/draw-odds.js        deck-aware queries: getDrawProbability, nextCardProbability,
-                       hitDistribution, buildOddsTable, group/card targets.
+                       hitDistribution, buildOddsTable, drawsBeforeTurn, oddsByTurn.
                        Implements the known-bottom rule from section 6.5.
 js/deck-model.js       canonical Deck / DeckCard / CardInstance, zones, name
                        normalization, instance expansion, target matchers.
 js/state.js            seeded shuffle, mulligan state machine, analyze-mode
                        assignment, conservation assertion on every transition.
-js/tags.js             effective-tag resolution, precedence, provenance,
-                       tag targets. Inference is basic-land only so far.
+js/tags.js             effective-tag resolution, precedence, provenance, targets.
+js/scryfall.js         batch collection lookup, shared scheduler, 429 backoff,
+                       dedupe, cache, deck hydration with degraded mode.
+js/storage.js          IndexedDB card cache and deck snapshots, localStorage
+                       settings and tag overrides, portable profile export.
 js/importers/text.js   plain deck-list parser and importer.
+js/ui/                 dom, hand, odds, deck, tooltip.
 tests/                 probability, deck-state, mulligan, draw-odds, tags,
-                       importers — 79 tests, all passing.
-fixtures/              sample-deck.txt (99-card Commander list, parses clean).
-package.json           `npm test`, `npm run serve`. No dependencies.
+                       importers, scryfall, storage, ui-wiring — 118 tests.
+fixtures/              sample-deck.txt, scryfall-collection.json (captured live).
 ```
 
 #### Deviations from this plan
@@ -90,23 +96,71 @@ package.json           `npm test`, `npm run serve`. No dependencies.
   deck-aware wrapper (`probabilityForGroup`) inside `probability.js`; splitting
   it keeps the pure math free of any deck or game-state knowledge and lets the
   math be tested without constructing decks.
-- **Phase 0 was skipped.** Its Scryfall half should be folded into step 4 rather
-  than built as a throwaway spike page. Its Archidekt/Moxfield half is still
-  outstanding and still gates steps 12-13.
+- **`js/ui/dom.js` was added.** A dozen lines of element helpers shared by the
+  four UI modules, and the single place `textContent` is enforced.
+- **`js/mulligan.js` does not exist yet.** The state machine lives in
+  `state.js`; the file is reserved for keep policies (step 15).
 - **Probability cross-checks use an exact BigInt rational reference**
   implemented in the test file, not StatTrek. The classic 60-card / 4-copies /
-  7-cards case matches the published 39.95% figure; the remaining literals are
-  worth spot-checking against an external calculator.
+  7-cards case matches the published 39.95% figure.
 - **Tests run on `node --test`** with a `package.json` (`"type": "module"`).
   This adds no runtime dependency — the shipped app is still dependency-free
-  native ES modules.
+  native ES modules. Browser-DOM testing remains manual (section 23.9); a
+  `tests/ui-wiring.test.mjs` suite catches the mechanical failures statically
+  (missing element ids, unresolvable imports, `innerHTML`, CSP drift).
+
+#### Phase 0 answers, verified against the live APIs
+
+Answered by request, not by assumption. Captured 2026-08-26.
+
+**Scryfall — works.**
+
+- `POST /cards/collection` returns `access-control-allow-origin: *`, so it works
+  from any static origin including GitHub Pages.
+- A batch of 75 identifiers is accepted; the 80-card sample deck hydrates fully
+  in exactly two requests with zero unresolved cards.
+- Name matching is case- and punctuation-insensitive (`urzas mine` resolves), but
+  **the joined name of a split card is rejected**: `{"name":"Wear // Tear"}`
+  returns `not_found` while `{"name":"Wear"}` resolves it. `lookupName()` sends
+  the front face for this reason.
+- Double-faced cards carry no top-level `mana_cost` or `image_uris`; both must
+  come from `card_faces[0]`.
+- Scryfall rejects HTTP-library default User-Agents with HTTP 400
+  `generic_user_agent`. Browsers always send their own and forbid scripts from
+  changing it, so the app is unaffected — but Node scripts must pass one.
+- Image URLs on `cards.scryfall.io` are usable directly. Card records are cached
+  for 30 days.
+
+**Archidekt — not viable from a static origin.**
+
+- `GET https://archidekt.com/api/decks/{id}/` returns 200 with full JSON, and
+  the payload does contain quantity, card name, Scryfall/Oracle ids, and
+  per-card categories.
+- But the response carries `access-control-allow-origin: http://localhost:3000`
+  — their own development origin, hardcoded, not `*`. A browser on any other
+  origin blocks the response. This is not a header the client can work around.
+- Direct browser import is therefore impossible without a proxy, which would
+  break the browser-only principle in section 3.3.
+
+**Moxfield — not viable from a static origin.**
+
+- `GET https://api2.moxfield.com/v3/decks/all/{id}` returns HTTP 403 from
+  Cloudflare with an HTML challenge body. No CORS headers are reached at all.
+- Moxfield's terms direct integrators to request API access rather than call the
+  endpoint directly.
+
+**Consequence:** steps 12 and 13 should be closed as won't-do for the static
+app, not left as pending work. The plain-text importer is the supported path,
+exactly as section 3.4 anticipated, and the landing screen says so plainly. If
+provider import is ever wanted, it needs a proxy and a decision to give up
+browser-only operation.
 
 #### Critical path
 
-Two things gate everything user-visible: the Scryfall client (step 4), without
-which no imported card has a real type line, and any UI at all (step 5). The
-Archidekt/Moxfield CORS questions in section 31 remain unanswered and should be
-resolved before committing to steps 12-13.
+Nothing gates the app any more — it is usable. The next most valuable work is
+the mana model (step 14), because "can I actually cast this hand" is the
+question the hand check still cannot answer, followed by keep heuristics
+(step 15) which depend on it.
 
 ---
 
@@ -391,30 +445,31 @@ Recommended layout, annotated with what exists today:
 
 ```text
 /
-├─ index.html                     TODO
+├─ index.html                     DONE
 ├─ css/
-│  └─ app.css                     TODO
+│  └─ app.css                     DONE
 ├─ js/
-│  ├─ app.js                      TODO
+│  ├─ app.js                      DONE   store, dispatch, render
 │  ├─ state.js                    DONE
 │  ├─ deck-model.js               DONE
 │  ├─ probability.js              DONE   pure math only
 │  ├─ draw-odds.js                DONE   added; deck-aware query layer
 │  ├─ mulligan.js                 TODO   state machine lives in state.js;
 │  │                                     this file is for keep policies
-│  ├─ mana.js                     TODO
+│  ├─ mana.js                     TODO   next
 │  ├─ tags.js                     DONE   inference still basic-land only
-│  ├─ storage.js                  TODO
-│  ├─ scryfall.js                 TODO   next step
+│  ├─ storage.js                  DONE   IndexedDB + localStorage
+│  ├─ scryfall.js                 DONE   batching, backoff, hydration
 │  ├─ importers/
 │  │  ├─ text.js                  DONE
-│  │  ├─ archidekt.js             TODO   blocked on Phase 0
-│  │  └─ moxfield.js              TODO   blocked on Phase 0
+│  │  ├─ archidekt.js             WON'T DO  CORS pinned to their origin
+│  │  └─ moxfield.js              WON'T DO  Cloudflare 403
 │  └─ ui/
-│     ├─ hand.js                  TODO
-│     ├─ odds.js                  TODO
-│     ├─ deck.js                  TODO
-│     └─ tooltip.js               TODO
+│     ├─ hand.js                  DONE   hand row, analyze controls
+│     ├─ odds.js                  DONE   table, hand check, planner
+│     ├─ deck.js                  DONE   import, summary, tag editor
+│     ├─ tooltip.js               DONE   hover, focus, mobile sheet
+│     └─ dom.js                   DONE   added; textContent-only helpers
 ├─ tests/
 │  ├─ probability.test.mjs        DONE
 │  ├─ deck-state.test.mjs         DONE
@@ -422,11 +477,13 @@ Recommended layout, annotated with what exists today:
 │  ├─ tags.test.mjs               DONE
 │  ├─ importers.test.mjs          DONE
 │  ├─ mulligan.test.mjs           DONE
+│  ├─ scryfall.test.mjs           DONE   added
+│  ├─ storage.test.mjs            DONE   added
+│  ├─ ui-wiring.test.mjs          DONE   added; static wiring guards
 │  └─ helpers/decks.mjs           DONE   added; shared test decks
 ├─ fixtures/
 │  ├─ sample-deck.txt             DONE
-│  ├─ archidekt-deck.json         TODO
-│  └─ moxfield-deck.json          TODO
+│  └─ scryfall-collection.json    DONE   added; captured from the live API
 ├─ package.json                   DONE   added; test script only, no deps
 ├─ .nojekyll                      DONE   added
 └─ README.md                      DONE
@@ -2534,36 +2591,23 @@ This is a natural long-term extension.
 
 ---
 
-## 31. Phase-0 Questions to Answer in Code, Not by Assumption
+## 31. Phase-0 Questions — Answered
 
-Before committing to provider integrations, create a tiny deployed test page that answers:
+These were open questions. They have now been answered by real requests against
+the live APIs; the full findings are in section 1.1 under "Phase 0 answers".
 
-### Archidekt
+| Question | Answer |
+| --- | --- |
+| Does Scryfall's batch collection POST work from a static page? | Yes. `access-control-allow-origin: *`, 75 identifiers per request, 80-card deck in two requests. |
+| Are Scryfall's required headers compatible with browser restrictions? | Yes. The only header trap is User-Agent, which browsers set themselves and scripts cannot change. |
+| Are Scryfall image URLs usable directly? | Yes, from `cards.scryfall.io`. Cached 30 days. |
+| Does Archidekt's deck API succeed from GitHub Pages? | The request succeeds but the **browser blocks the response**: their CORS header is pinned to `http://localhost:3000`. |
+| Which Archidekt fields hold quantity, name, ids, categories? | All present in the payload — but unreachable from a browser, so moot. |
+| Does Moxfield's public endpoint work without authentication? | No. Cloudflare returns HTTP 403 with a challenge page. |
+| Does Cloudflare block Moxfield requests? | Yes. |
 
-- Does `fetch("https://archidekt.com/api/decks/{id}/")` succeed from GitHub Pages?
-- Is CORS open for your Pages origin?
-- Which card fields contain:
-  - quantity,
-  - card name,
-  - Scryfall / Oracle identifier,
-  - per-card categories?
-- How are categories marked as excluded from the actual deck?
-
-### Moxfield
-
-- Does the current public deck endpoint succeed from GitHub Pages without authentication?
-- Does Cloudflare block the request?
-- Does the payload include user card tags?
-- Is there a documented or supported non-commercial integration path?
-
-### Scryfall
-
-- Does batch collection POST work from Pages?
-- Are required headers compatible with browser restrictions?
-- Are image URLs usable directly?
-- What is the best cache lifetime?
-
-Keep the resulting sanitized payloads in `fixtures/`.
+**Decision:** provider import is closed as won't-do for the browser-only app.
+Plain-text paste is the supported path, per section 3.4.
 
 ---
 
@@ -2669,25 +2713,24 @@ If building this personally, use this order:
 1. probability.js + tests                    DONE
 2. deck-model.js + state.js + tests          DONE
 3. plain text importer                       DONE
-4. Scryfall client + cache                   NEXT
-5. minimal deck/hand UI                      TODO
-6. deal / draw / mulligan state              engine DONE, UI TODO
-7. probability dashboard                     data layer DONE, UI TODO
-8. real-hand mode                            engine DONE, UI TODO
-9. card tooltip                              TODO
-10. tag editor                               resolution DONE, rest TODO
-11. combo groups                             basic target DONE, rest TODO
-12. Archidekt adapter                        TODO (blocked on Phase 0)
-13. Moxfield adapter                         TODO (blocked on Phase 0)
-14. mana model                               TODO
+4. Scryfall client + cache                   DONE
+5. minimal deck/hand UI                      DONE
+6. deal / draw / mulligan state              DONE
+7. probability dashboard                     DONE
+8. real-hand mode                            DONE
+9. card tooltip                              DONE
+10. tag editor                               DONE except automatic inference
+11. combo groups                             target DONE, saved-group UI TODO
+12. Archidekt adapter                        WON'T DO — CORS pinned to their origin
+13. Moxfield adapter                         WON'T DO — Cloudflare 403
+14. mana model                               NEXT
 15. keep heuristics                          TODO
 16. Monte Carlo mulligan comparison          TODO
 17. polish / accessibility / CSP             TODO
 ```
 
-Steps 4 and 5 are the gate: until Scryfall hydration lands no imported card has
-a real type line, and until there is an `index.html` none of the finished engine
-is reachable by a user.
+Steps 4 and 5 were the gate, and both are done: the app is reachable and every
+card carries a real type line. The remaining work is analysis depth, not access.
 
 This maximizes the chance that each intermediate milestone is already useful.
 

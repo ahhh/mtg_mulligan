@@ -161,3 +161,41 @@ export function createCardTarget(card) {
     matches: (other) => other.key === card.key,
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Draw horizon (plan section 15)                                      */
+/* ------------------------------------------------------------------ */
+
+/**
+ * How many cards the player will actually see between now and their draw step
+ * on `targetTurn`.
+ *
+ * Only ordinary draw steps count. Cantrips and draw spells are deliberately
+ * excluded: the plan is explicit that a deeper model must not be assumed, so
+ * extra cards are only counted when the user states them via
+ * `guaranteedExtraDraws`.
+ */
+export function drawsBeforeTurn(targetTurn, settings = {}) {
+  const { onPlay = true, drawOnTurnOne = false, currentTurn = 0, guaranteedExtraDraws = 0 } = settings;
+  if (!Number.isInteger(targetTurn) || targetTurn < 1) {
+    throw new RangeError(`targetTurn must be a positive integer, got ${targetTurn}`);
+  }
+
+  // The player on the play skips their first draw step unless a variant grants
+  // it; the player on the draw sees one card per turn including turn one.
+  const skipsFirstDraw = onPlay && !drawOnTurnOne;
+  const drawsThrough = (turn) => Math.max(0, skipsFirstDraw ? turn - 1 : turn);
+
+  const seen = drawsThrough(targetTurn) - drawsThrough(currentTurn);
+  return Math.max(0, seen) + guaranteedExtraDraws;
+}
+
+/**
+ * The question the hand-check panel actually asks: "I need one more land by
+ * turn N — what are my odds?" Returns the horizon alongside the probability so
+ * the UI can say both without recomputing either.
+ */
+export function oddsByTurn({ gameState, target, targetTurn, settings = {}, minimumHits = 1 }) {
+  const draws = drawsBeforeTurn(targetTurn, settings);
+  return { targetTurn, ...getDrawProbability({ gameState, target, draws, minimumHits }) };
+}

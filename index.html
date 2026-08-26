@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      Only the hosts this app actually uses (plan section 20.3). No inline
+      script, no inline style, no third-party anything.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: https://cards.scryfall.io; connect-src 'self' https://api.scryfall.com; base-uri 'none'; form-action 'none'"
+    />
+    <title>MTG Hand Lab — Mulligan &amp; Draw Odds</title>
+    <meta
+      name="description"
+      content="Exact hypergeometric draw odds and mulligan analysis for a Magic: The Gathering deck. Runs entirely in your browser."
+    />
+    <link rel="stylesheet" href="./css/app.css" />
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div>
+        <h1>MTG Hand Lab</h1>
+        <p class="tagline">
+          Exact draw odds and mulligan analysis. Everything runs in your browser — your decks never leave it.
+        </p>
+      </div>
+      <nav aria-label="Sections">
+        <button type="button" class="ghost" data-goto="landing">Load deck</button>
+        <button type="button" class="ghost" data-goto="deck">Deck</button>
+        <button type="button" class="ghost" data-goto="tags">Tags</button>
+        <button type="button" class="ghost" data-goto="play">Play</button>
+      </nav>
+    </header>
+
+    <div id="message" class="message" role="status" hidden></div>
+
+    <main id="main">
+      <section data-screen="landing" aria-labelledby="landing-heading">
+        <h2 id="landing-heading">Load a deck</h2>
+        <div id="import-panel" class="panel"></div>
+      </section>
+
+      <section data-screen="deck" aria-labelledby="deck-heading" hidden>
+        <h2 id="deck-heading" class="visually-hidden">Deck</h2>
+        <div id="deck-panel" class="panel"></div>
+      </section>
+
+      <section data-screen="tags" aria-labelledby="tags-heading" hidden>
+        <h2 id="tags-heading">Tags</h2>
+        <p class="muted">
+          Tags decide what counts as a hit. Your edits beat imported categories, which beat automatic ones.
+        </p>
+        <div id="tags-panel" class="panel"></div>
+      </section>
+
+      <section data-screen="play" aria-labelledby="play-heading" hidden>
+        <h2 id="play-heading" class="visually-hidden">Play</h2>
+        <div id="controls" class="panel panel--controls"></div>
+        <div id="hand-panel" class="panel"></div>
+        <div id="analyze-panel" class="panel" hidden></div>
+
+        <div class="panel">
+          <h2>Hand check</h2>
+          <div id="hand-check"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Draw odds</h2>
+          <div id="category-picker"></div>
+          <div id="odds-panel"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Turn planner</h2>
+          <div id="planner-panel"></div>
+        </div>
+
+        <div id="draw-log" class="panel"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Probabilities are exact hypergeometric results, not simulations. Card data from Scryfall; this project
+        is unaffiliated with Wizards of the Coast.
+      </p>
+    </footer>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>
