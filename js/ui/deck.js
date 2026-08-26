@@ -27,7 +27,7 @@ export function deckTagCounts(deck) {
 /* ------------------------------------------------------------------ */
 
 export function renderImport(container, handlers) {
-  const { onImportText, onLoadSample, recents = [], onOpenRecent, onImportProfile } = handlers;
+  const { onImportText, onImportUrl, onLoadSample, recents = [], onOpenRecent, onImportProfile } = handlers;
 
   const textarea = el("textarea", {
     id: "deck-input",
@@ -62,6 +62,35 @@ export function renderImport(container, handlers) {
         nameInput,
         el("button", { type: "submit", class: "primary", text: "Import deck" }),
       ]),
+    ],
+  );
+
+  const urlInput = el("input", {
+    id: "deck-url",
+    type: "url",
+    placeholder: "https://archidekt.com/decks/365563/...",
+    spellcheck: "false",
+  });
+
+  const urlForm = el(
+    "form",
+    {
+      class: "import import--url",
+      onsubmit: (event) => {
+        event.preventDefault();
+        onImportUrl(urlInput.value.trim());
+      },
+    },
+    [
+      el("label", { for: "deck-url", text: "Or import from an Archidekt link" }),
+      el("div", { class: "row" }, [urlInput, el("button", { type: "submit", class: "secondary", text: "Import" })]),
+      el("p", {
+        class: "muted",
+        // Section 1.1: Archidekt pins access-control-allow-origin to their own
+        // dev origin, so the browser cannot read the response directly. Saying
+        // so here is honest about the one request that leaves the machine.
+        text: "Archidekt blocks direct browser reads, so the deck id is relayed through an import proxy. Your deck stays in the browser otherwise.",
+      }),
     ],
   );
 
@@ -105,9 +134,10 @@ export function renderImport(container, handlers) {
   replace(container, [
     el("p", {
       class: "lede",
-      text: "Paste a deck list and get exact draw odds. Archidekt and Moxfield URL import is not built yet — export the list and paste it here.",
+      text: "Paste a deck list and get exact draw odds. Archidekt links import directly; for Moxfield, export the list and paste it here.",
     }),
     form,
+    urlForm,
     alternatives,
     recentList,
   ]);

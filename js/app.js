@@ -11,6 +11,7 @@
 
 import { ZONES } from "./deck-model.js";
 import { importText, textImporter } from "./importers/text.js";
+import { archidektImporter } from "./importers/archidekt.js";
 import { createScryfallClient, hydrateDeck } from "./scryfall.js";
 import { tagTarget, normalizeTag, getEffectiveTags } from "./tags.js";
 import {
@@ -439,6 +440,22 @@ function renderLanding() {
               .slice(0, 3)
               .map((problem) => `line ${problem.line}`)
               .join(", ")}`,
+          },
+        });
+      }
+      await dispatch({ type: "DECK_IMPORTED", deck });
+    },
+    onImportUrl: async (url) => {
+      if (!archidektImporter.canHandle(url)) {
+        throw new Error("That is not an Archidekt deck link");
+      }
+      setUi({ message: { kind: "info", text: "Importing from Archidekt\u2026" } });
+      const { deck, problems } = await archidektImporter.import(url);
+      if (problems.length) {
+        setUi({
+          message: {
+            kind: "warn",
+            text: `${formatCount(problems.length, "card")} in that deck could not be read and were skipped`,
           },
         });
       }

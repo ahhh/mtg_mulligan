@@ -118,11 +118,17 @@ plan.
   Two traps: the joined name of a split card (`Wear // Tear`) is rejected and
   must be looked up by its front face, and Scryfall refuses HTTP-library default
   User-Agents — which only affects Node scripts, since browsers set their own.
-- **Archidekt import is not possible from a browser.** The API returns the data,
-  but its CORS header is pinned to `http://localhost:3000`, so any other origin
-  has the response blocked. Working around it needs a proxy.
+- **Archidekt import works through a proxy.** The API returns the data, but its
+  CORS header is pinned to `http://localhost:3000`, so a browser on any other
+  origin is refused the read. That header is Archidekt's, not ours, so no
+  client-side change reaches it — the deck id is relayed through an import
+  proxy instead. `DEFAULT_PROXY` in `js/importers/archidekt.js` is the only
+  place that names the provider, and a test asserts it matches the CSP's
+  `connect-src`.
 - **Moxfield import is not possible from a browser.** Cloudflare answers with
   HTTP 403 before any CORS header is reached.
 
-Pasting an exported deck list is the supported path, which is what the plan
-anticipated when it called third-party imports adapters rather than foundations.
+Pasting an exported deck list remains the path that always works, which is what
+the plan anticipated when it called third-party imports adapters rather than
+foundations. Archidekt import is the one adapter built on top of it, and it
+degrades to paste whenever the proxy is unavailable.

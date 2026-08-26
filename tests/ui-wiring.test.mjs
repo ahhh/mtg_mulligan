@@ -99,6 +99,23 @@ test("the Content-Security-Policy allows exactly the hosts the app uses", () => 
   assert.match(csp, /default-src 'none'/, "everything not listed is denied");
 });
 
+test("the import proxy the code uses is the one the CSP allows", async () => {
+  // The easy way to break Archidekt import is to swap DEFAULT_PROXY without
+  // touching connect-src. The failure is a console-only CSP violation that
+  // looks exactly like a CORS error, so it gets misdiagnosed for a while.
+  const { DEFAULT_PROXY } = await import("../js/importers/archidekt.js");
+  const csp = html.match(/http-equiv="Content-Security-Policy"\s+content="([^"]+)"/)?.[1];
+  const connectSrc = csp.match(/connect-src ([^;]+)/)[1];
+
+  if (DEFAULT_PROXY) {
+    const origin = new URL(DEFAULT_PROXY).origin;
+    assert.ok(
+      connectSrc.includes(origin),
+      `archidekt.js proxies through ${origin}, which connect-src does not allow`,
+    );
+  }
+});
+
 test("the UI never imports the raw probability module", () => {
   // Section 5.2: no UI component performs probability math directly. The odds
   // dashboard must go through draw-odds.js, which owns the known-bottom rule.

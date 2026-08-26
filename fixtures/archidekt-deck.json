@@ -1,0 +1,307 @@
+{
+  "id": 365563,
+  "name": "Brago Blink",
+  "deckFormat": 3,
+  "categories": [
+    {
+      "id": 7033815,
+      "name": "Haste",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 7033717,
+      "name": "Lifegain",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 7033708,
+      "name": "Fetches",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 7033696,
+      "name": "Recursion",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 6793308,
+      "name": "Land",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 6793307,
+      "name": "Sideboard",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 3159875,
+      "name": "Ramp",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 3159874,
+      "name": "Tutor",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 3159873,
+      "name": "Wincon",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 3159872,
+      "name": "Interaction",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 3159871,
+      "name": "Creature",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 3159870,
+      "name": "Boardwipe",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 3159869,
+      "name": "Commander",
+      "isPremier": true,
+      "includedInDeck": true,
+      "includedInPrice": true
+    },
+    {
+      "id": 3159868,
+      "name": "Maybeboard",
+      "isPremier": false,
+      "includedInDeck": false,
+      "includedInPrice": false
+    },
+    {
+      "id": 3159867,
+      "name": "Draw",
+      "isPremier": false,
+      "includedInDeck": true,
+      "includedInPrice": true
+    }
+  ],
+  "cards": [
+    {
+      "id": 861241711,
+      "quantity": 1,
+      "categories": [
+        "Interaction"
+      ],
+      "modifier": "Normal",
+      "label": ",#656565",
+      "card": {
+        "collectorNumber": "68",
+        "uid": "dd125949-38c4-470f-9128-b80c45621086",
+        "edition": {
+          "editioncode": "a25",
+          "editionname": "Masters 25",
+          "editiondate": "2018-03-16",
+          "editiontype": "masters",
+          "mtgoCode": "a25"
+        },
+        "oracleCard": {
+          "cmc": 0,
+          "colorIdentity": [
+            "Blue"
+          ],
+          "faces": [],
+          "layout": "normal",
+          "uid": "f3e213a4-ba5a-468a-93b3-c0a34e1bd725",
+          "manaCost": "{0}",
+          "name": "Pact of Negation",
+          "subTypes": [],
+          "superTypes": [],
+          "text": "Counter target spell.\nAt the beginning of your next upkeep, pay {3}{U}{U}. If you don't, you lose the game.",
+          "types": [
+            "Instant"
+          ]
+        }
+      }
+    },
+    {
+      "id": 861241740,
+      "quantity": 1,
+      "categories": [
+        "Land",
+        "Fetches"
+      ],
+      "modifier": "Normal",
+      "label": ",#555555",
+      "card": {
+        "collectorNumber": "229",
+        "uid": "c9a8cc61-7e36-4df7-9c89-c32fce129c5a",
+        "edition": {
+          "editioncode": "mm3",
+          "editionname": "Modern Masters 2017",
+          "editiondate": "2017-03-17",
+          "editiontype": "masters",
+          "mtgoCode": "mm3"
+        },
+        "oracleCard": {
+          "cmc": 0,
+          "colorIdentity": [],
+          "faces": [],
+          "layout": "normal",
+          "uid": "c5acf2a5-40f4-433d-a74d-1cb56c521464",
+          "manaCost": "",
+          "name": "Arid Mesa",
+          "subTypes": [],
+          "superTypes": [],
+          "text": "{T}, Pay 1 life, Sacrifice this land: Search your library for a Mountain or Plains card, put it onto the battlefield, then shuffle.",
+          "types": [
+            "Land"
+          ]
+        }
+      }
+    },
+    {
+      "id": 861241860,
+      "quantity": 5,
+      "categories": [
+        "Land"
+      ],
+      "modifier": "Normal",
+      "label": ",#656565",
+      "card": {
+        "collectorNumber": "251",
+        "uid": "8ac1fceb-8427-409c-98a4-9a5c1ff980b4",
+        "edition": {
+          "editioncode": "mh1",
+          "editionname": "Modern Horizons",
+          "editiondate": "2019-06-14",
+          "editiontype": "draft_innovation",
+          "mtgoCode": "mh1"
+        },
+        "oracleCard": {
+          "cmc": 0,
+          "colorIdentity": [
+            "Blue"
+          ],
+          "faces": [],
+          "layout": "normal",
+          "uid": "5b2460a5-6ae5-4cad-ba94-1a9e98e6e4c0",
+          "manaCost": "",
+          "name": "Snow-Covered Island",
+          "subTypes": [
+            "Island"
+          ],
+          "superTypes": [
+            "Basic",
+            "Snow"
+          ],
+          "text": "({T}: Add {U}.)",
+          "types": [
+            "Land"
+          ]
+        }
+      }
+    },
+    {
+      "id": 861241885,
+      "quantity": 1,
+      "categories": [
+        "Maybeboard"
+      ],
+      "modifier": "Normal",
+      "label": ",#656565",
+      "card": {
+        "collectorNumber": "699",
+        "uid": "3826d13f-e10f-4201-b680-51f826ff4ca9",
+        "edition": {
+          "editioncode": "cmr",
+          "editionname": "Commander Legends",
+          "editiondate": "2020-11-20",
+          "editiontype": "draft_innovation",
+          "mtgoCode": "cmr"
+        },
+        "oracleCard": {
+          "cmc": 2,
+          "colorIdentity": [],
+          "faces": [],
+          "layout": "normal",
+          "uid": "648bd03d-247e-4d6f-87a9-12a67688cbf5",
+          "manaCost": "{2}",
+          "name": "Scroll Rack",
+          "subTypes": [],
+          "superTypes": [],
+          "text": "{1}, {T}: Exile any number of cards from your hand face down. Put that many cards from the top of your library into your hand. Then look at the exiled cards and put them on top of your library in any order.",
+          "types": [
+            "Artifact"
+          ]
+        }
+      }
+    },
+    {
+      "id": 861241795,
+      "quantity": 1,
+      "categories": [
+        "Commander"
+      ],
+      "modifier": "Normal",
+      "label": ",#656565",
+      "card": {
+        "collectorNumber": "41",
+        "uid": "1691145e-e9c2-45e7-be35-83245a6e5eaf",
+        "edition": {
+          "editioncode": "cns",
+          "editionname": "Conspiracy",
+          "editiondate": "2014-06-06",
+          "editiontype": "draft_innovation",
+          "mtgoCode": null
+        },
+        "oracleCard": {
+          "cmc": 4,
+          "colorIdentity": [
+            "White",
+            "Blue"
+          ],
+          "faces": [],
+          "layout": "normal",
+          "uid": "fcb0c7db-bd07-4c25-b7f8-b6c207e4f6be",
+          "manaCost": "{2}{W}{U}",
+          "name": "Brago, King Eternal",
+          "subTypes": [
+            "Spirit",
+            "Noble"
+          ],
+          "superTypes": [
+            "Legendary"
+          ],
+          "text": "Flying\nWhenever Brago deals combat damage to a player, exile any number of target nonland permanents you control, then return those cards to the battlefield under their owner's control.",
+          "types": [
+            "Creature"
+          ]
+        }
+      }
+    }
+  ]
+}

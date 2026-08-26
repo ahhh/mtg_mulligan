@@ -56,7 +56,7 @@ the mana model, keep heuristics, Monte Carlo comparison, and saved combo groups.
 | 9 | Card tooltip | Complete |
 | 10 | Tag editor | Editor, precedence, and persistence complete; inference still basic-land only |
 | 11 | Combo groups | Group target complete; no saved-group UI |
-| 12 | Archidekt adapter | **Not viable from a static origin** — see Phase 0 below |
+| 12 | Archidekt adapter | **Done** — via an import proxy; see Phase 0 below |
 | 13 | Moxfield adapter | **Not viable from a static origin** — see Phase 0 below |
 | 14 | Mana model | Not started — next |
 | 15 | Keep heuristics | Not started |
@@ -139,8 +139,10 @@ Answered by request, not by assumption. Captured 2026-08-26.
 - But the response carries `access-control-allow-origin: http://localhost:3000`
   — their own development origin, hardcoded, not `*`. A browser on any other
   origin blocks the response. This is not a header the client can work around.
-- Direct browser import is therefore impossible without a proxy, which would
-  break the browser-only principle in section 3.3.
+- Direct browser import is therefore impossible without a proxy. Implemented
+  as one: `js/importers/archidekt.js` relays through a configurable proxy, so
+  section 3.3's browser-only principle now holds for everything *except* the
+  deck id on an explicit Archidekt import. Parsing stays pure and offline.
 
 **Moxfield — not viable from a static origin.**
 
@@ -149,11 +151,11 @@ Answered by request, not by assumption. Captured 2026-08-26.
 - Moxfield's terms direct integrators to request API access rather than call the
   endpoint directly.
 
-**Consequence:** steps 12 and 13 should be closed as won't-do for the static
-app, not left as pending work. The plain-text importer is the supported path,
-exactly as section 3.4 anticipated, and the landing screen says so plainly. If
-provider import is ever wanted, it needs a proxy and a decision to give up
-browser-only operation.
+**Consequence:** step 13 (Moxfield) is closed as won't-do — Cloudflare blocks
+it before CORS is even reached, and their terms direct integrators to request
+API access. Step 12 (Archidekt) is done via a proxy, a deliberate trade of
+strict browser-only operation for one relayed deck id. The plain-text importer
+remains the path that always works, exactly as section 3.4 anticipated.
 
 #### Critical path
 
@@ -462,7 +464,7 @@ Recommended layout, annotated with what exists today:
 │  ├─ scryfall.js                 DONE   batching, backoff, hydration
 │  ├─ importers/
 │  │  ├─ text.js                  DONE
-│  │  ├─ archidekt.js             WON'T DO  CORS pinned to their origin
+│  │  ├─ archidekt.js             DONE      via proxy; CORS pinned to their origin
 │  │  └─ moxfield.js              WON'T DO  Cloudflare 403
 │  └─ ui/
 │     ├─ hand.js                  DONE   hand row, analyze controls
